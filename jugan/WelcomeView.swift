@@ -74,7 +74,6 @@ struct WelcomeView: View {
             isLoggedIn = true
         }
     }
-    }
 }
 
 struct WelcomeView_Previews: PreviewProvider {
