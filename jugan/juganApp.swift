@@ -1,17 +1,13 @@
-//
-//  juganApp.swift
-//  jugan
-//
-//  Created by Lee MacMini on 2/26/26.
-//
-
 import SwiftUI
 
 @main
-struct juganApp: App {
+struct JuganApp: App {
+    @StateObject private var dataManager = DataManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(dataManager)
         }
     }
 }
