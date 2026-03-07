@@ -52,7 +52,7 @@ struct BoardView: View {
                         DatePicker("", selection: $selectedDate, displayedComponents: [.date])
                             .datePickerStyle(.graphical)
                             .padding()
-                            .onChange(of: selectedDate) { _, _ in
+                            .onChange(of: selectedDate) { oldValue, newValue in
                                 withAnimation {
                                     showingDatePicker = false // 날짜 선택 시 자동으로 닫힘
                                 }

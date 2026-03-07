@@ -32,10 +32,19 @@ struct CalendarView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
+                // 상단: 제목 (여백 최소화를 위해 직접 구현)
+                HStack {
+                    Text("Calendar")
+                        .font(.system(size: 28, weight: .bold))
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                
                 // 상단: 캘린더 (Apple 스타일)
                 DatePicker("날짜 선택", selection: $selectedDate, displayedComponents: [.date])
                     .datePickerStyle(.graphical)
-                    .padding()
+                    .labelsHidden() // 라벨 숨김으로 공간 절약
                 
                 Divider()
                 
@@ -77,7 +86,6 @@ struct CalendarView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
             }
-            .navigationTitle("Calendar")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

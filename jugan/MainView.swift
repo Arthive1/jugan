@@ -63,7 +63,7 @@ struct MainView: View {
                         DatePicker("", selection: $selectedDate, displayedComponents: [.date])
                             .datePickerStyle(.graphical)
                             .padding()
-                            .onChange(of: selectedDate) { _ in
+                            .onChange(of: selectedDate) { oldValue, newValue in
                                 withAnimation {
                                     showingDatePicker = false // 날짜 선택 시 자동으로 닫힘
                                 }
@@ -86,11 +86,13 @@ struct MainView: View {
 
                 // 상단: 업무
                 VStack(alignment: .leading, spacing: 0) {
-                    SectionHeader(title: "업무", action: { showingAddWork = true })
+                    SectionHeader(title: "업무", action: { showingAddWork = true }, isTop: true)
                     
                     List {
                         ForEach(filteredWorkTasks, id: \.id) { task in
                             TaskRow(task: task)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
                                         dataManager.deleteTask(task)
@@ -108,11 +110,9 @@ struct MainView: View {
                         }
                     }
                     .listStyle(PlainListStyle())
+                    .background(Color.white)
                 }
                 .frame(maxHeight: .infinity)
-                
-                Divider()
-                    .background(Color.gray.opacity(0.3))
                 
                 // 하단: 할일
                 VStack(alignment: .leading, spacing: 0) {
@@ -121,6 +121,8 @@ struct MainView: View {
                     List {
                         ForEach(filteredTodoTasks, id: \.id) { task in
                             TaskRow(task: task)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
                                         dataManager.deleteTask(task)
@@ -138,6 +140,7 @@ struct MainView: View {
                         }
                     }
                     .listStyle(PlainListStyle())
+                    .background(Color.white)
                 }
                 .frame(maxHeight: .infinity)
             }
@@ -202,6 +205,7 @@ struct MainView: View {
 struct SectionHeader: View {
     let title: String
     let action: () -> Void
+    var isTop: Bool = false
     
     var body: some View {
         HStack {
@@ -213,7 +217,9 @@ struct SectionHeader: View {
                     .font(.title2)
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .padding(.top, isTop ? -10 : 0) // 최상단 섹션의 경우 위쪽 여백 제거
         .background(Color(UIColor.systemBackground))
     }
 }

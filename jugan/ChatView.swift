@@ -3,9 +3,9 @@ import SwiftUI
 struct ChatView: View {
     @State private var messageText: String = ""
     @State private var messages: [ChatMessage] = [
-        ChatMessage(sender: "홍길동", text: "업무 준비 다 되셨나요?", isMe: false),
-        ChatMessage(sender: "Me", text: "네, 지금 준비 중입니다!", isMe: true),
-        ChatMessage(sender: "김철수", text: "저도 곧 들어갑니다.", isMe: false)
+        ChatMessage(sender: "홍길동", text: "업무 준비 다 되셨나요?", isMe: false, profileImage: "person.crop.circle.fill"),
+        ChatMessage(sender: "Me", text: "네, 지금 준비 중입니다!", isMe: true, profileImage: "person.circle.fill"),
+        ChatMessage(sender: "김철수", text: "저도 곧 들어갑니다.", isMe: false, profileImage: "person.crop.circle.badge.plus")
     ]
     
     var body: some View {
@@ -56,7 +56,7 @@ struct ChatView: View {
     func sendMessage() {
         guard !messageText.isEmpty else { return }
         withAnimation {
-            messages.append(ChatMessage(sender: "Me", text: messageText, isMe: true))
+            messages.append(ChatMessage(sender: "Me", text: messageText, isMe: true, profileImage: "person.circle.fill"))
             messageText = ""
         }
     }
@@ -66,30 +66,40 @@ struct ChatBubble: View {
     let message: ChatMessage
     
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
-            if message.isMe { Spacer() }
-            
-            if !message.isMe {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(message.sender)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .padding(.leading, 4)
-                    
-                    Text(message.text)
-                        .padding(12)
-                        .background(Color(.systemGray5))
-                        .clipShape(ChatBubbleShape(isMe: false))
-                }
+        HStack(alignment: .top, spacing: 10) {
+            if message.isMe {
+                Spacer()
             } else {
-                Text(message.text)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .background(Color.blue)
-                    .clipShape(ChatBubbleShape(isMe: true))
+                // 상대방 프로필 이미지
+                Image(systemName: message.profileImage)
+                    .resizable()
+                    .frame(width: 35, height: 35)
+                    .foregroundColor(.gray.opacity(0.6))
+                    .padding(.top, 4)
             }
             
-            if !message.isMe { Spacer() }
+            VStack(alignment: message.isMe ? .trailing : .leading, spacing: 4) {
+                if !message.isMe {
+                    // 상대방 이름
+                    Text(message.sender)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.primary.opacity(0.8))
+                        .padding(.leading, 2)
+                }
+                
+                // 말풍선
+                Text(message.text)
+                    .font(.system(size: 15))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .foregroundColor(message.isMe ? .white : .primary)
+                    .background(message.isMe ? Color.blue : Color(.systemGray6))
+                    .clipShape(ChatBubbleShape(isMe: message.isMe))
+            }
+            
+            if !message.isMe {
+                Spacer()
+            }
         }
     }
 }
@@ -109,6 +119,7 @@ struct ChatMessage: Identifiable {
     let sender: String
     let text: String
     let isMe: Bool
+    let profileImage: String
 }
 
 struct ChatView_Previews: PreviewProvider {
