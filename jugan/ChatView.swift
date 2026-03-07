@@ -9,8 +9,19 @@ struct ChatView: View {
     ]
     
     var body: some View {
-        NavigationView {
-            VStack {
+        VStack(spacing: 0) {
+                // 상단: 제목 직접 구현 (기본 네비게이션 타이틀 공백 제거)
+                HStack {
+                    Text("Group Chat")
+                        .font(.system(size: 28, weight: .bold))
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, 10)
+                
+                Divider()
+                
                 // 메시지 목록
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -48,9 +59,7 @@ struct ChatView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
             }
-            .navigationTitle("Group Chat")
-            .navigationBarTitleDisplayMode(.inline)
-        }
+        .navigationBarHidden(true)
     }
     
     func sendMessage() {
