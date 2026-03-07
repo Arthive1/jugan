@@ -32,11 +32,10 @@ struct CalendarView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 상단: 제목 (여백 최소화를 위해 직접 구현)
                 HStack {
                     Text("Calendar")
                         .font(.system(size: 28, weight: .bold))
-                    Spacer()
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
@@ -84,8 +83,9 @@ struct CalendarView: View {
                         }
                     }
                 }
-                .listStyle(InsetGroupedListStyle())
+                .listStyle(PlainListStyle())
             }
+            .background(Color(UIColor.systemBackground))
             .navigationBarTitleDisplayMode(.inline)
         }
     }

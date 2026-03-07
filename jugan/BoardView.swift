@@ -18,6 +18,7 @@ struct BoardView: View {
         return "\(weekOfYear)주차 \(weekDay)"
     }
     
+    
     // 현재 선택된 날짜의 YYYY.MM.dd 표시용
     private var subDateTitle: String {
         let formatter = DateFormatter()
@@ -36,6 +37,7 @@ struct BoardView: View {
         return date >= startOfDay && date <= endOfDay
     }
     
+    
     // 선택된 날짜의 모든 업무와 할일을 사용자별로 그룹화
     private var groupedTasks: [String: [TaskItem]] {
         let allTasks = dataManager.workTasks + dataManager.todoTasks
@@ -46,7 +48,7 @@ struct BoardView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 상단 캘린더 드롭다운 영역 (My와 동일)
+                // 상단 캘린더 드롭다운 영역
                 if showingDatePicker {
                     VStack {
                         DatePicker("", selection: $selectedDate, displayedComponents: [.date])
@@ -71,6 +73,8 @@ struct BoardView: View {
                     }
                     .background(Color(UIColor.secondarySystemBackground))
                     .transition(.move(edge: .top).combined(with: .opacity))
+                    .navigationTitle("")
+
                 }
                 
                 ScrollView {
@@ -147,6 +151,7 @@ struct BoardView: View {
                     }
                 }
             }
+            .background(Color(UIColor.systemBackground))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {

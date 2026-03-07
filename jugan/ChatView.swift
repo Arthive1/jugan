@@ -14,14 +14,12 @@ struct ChatView: View {
                 HStack {
                     Text("Group Chat")
                         .font(.system(size: 28, weight: .bold))
-                    Spacer()
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
                 .padding(.bottom, 10)
-                
-                Divider()
-                
+                                
                 // 메시지 목록
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -34,7 +32,6 @@ struct ChatView: View {
                     }
                 }
                 
-                Divider()
                 
                 // 메시지 입력창
                 HStack(spacing: 12) {
@@ -59,7 +56,8 @@ struct ChatView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
             }
-        .navigationBarHidden(true)
+            .background(Color(UIColor.systemBackground))
+            .navigationBarHidden(true)
     }
     
     func sendMessage() {

@@ -52,7 +52,7 @@ struct GroupView: View {
                     .padding()
                 }
             }
-            .background(Color(UIColor.systemGroupedBackground))
+            .background(Color(UIColor.systemBackground))
             .navigationBarTitleDisplayMode(.inline)
             .alert("초대 수락", isPresented: $showingInviteAlert) {
                 Button("취소", role: .cancel) { }

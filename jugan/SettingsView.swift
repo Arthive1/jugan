@@ -7,10 +7,11 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             // 상단 타이틀
             HStack {
-                Text("설정")
-                    .font(.title2.bold())
-                Spacer()
+                Text("Settings")
+                    .font(.system(size: 28, weight: .bold))
+                    .frame(maxWidth: .infinity) // 이 코드가 중요해요!
             }
+
             .padding()
             
             // 메뉴 리스트
@@ -39,8 +40,8 @@ struct SettingsView: View {
                     }
                 }
             }
-            .listStyle(InsetGroupedListStyle())
+            .listStyle(PlainListStyle())
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(UIColor.systemBackground))
     }
 }
