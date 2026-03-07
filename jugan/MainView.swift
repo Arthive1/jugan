@@ -57,33 +57,6 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 상단 캘린더 드롭다운 영역
-                if showingDatePicker {
-                    VStack {
-                        DatePicker("", selection: $selectedDate, displayedComponents: [.date])
-                            .datePickerStyle(.graphical)
-                            .padding()
-                            .onChange(of: selectedDate) { oldValue, newValue in
-                                withAnimation {
-                                    showingDatePicker = false // 날짜 선택 시 자동으로 닫힘
-                                }
-                            }
-                        
-                        Button {
-                            withAnimation {
-                                selectedDate = Date() // 오늘로 이동
-                                showingDatePicker = false
-                            }
-                        } label: {
-                            Text("오늘로 이동")
-                                .font(.footnote.bold())
-                                .padding(.bottom, 10)
-                        }
-                    }
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
-
                 // 상단: 업무
                 VStack(alignment: .leading, spacing: 0) {
                     SectionHeader(title: "업무", action: { showingAddWork = true }, isTop: true)
@@ -191,6 +164,27 @@ struct MainView: View {
             }
             .onAppear {
                 dataManager.fetchTasks(ownerId: "temporary_user")
+            }
+            .popover(isPresented: $showingDatePicker) {
+                VStack {
+                    DatePicker("", selection: $selectedDate, displayedComponents: [.date])
+                        .datePickerStyle(.graphical)
+                        .padding()
+                        .onChange(of: selectedDate) { oldValue, newValue in
+                            showingDatePicker = false
+                        }
+                    
+                    Button {
+                        selectedDate = Date()
+                        showingDatePicker = false
+                    } label: {
+                        Text("오늘로 이동")
+                            .font(.footnote.bold())
+                            .padding(.bottom, 20)
+                    }
+                }
+                .presentationDetents([.medium]) // iOS 16+ support for adjustable sheets if popover is treated as sheet
+                .frame(width: 350, height: 450)
             }
             .sheet(isPresented: $showingAddWork) {
                 TaskEntryView(type: .work, initialDate: selectedDate)
