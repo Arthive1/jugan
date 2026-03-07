@@ -6,6 +6,7 @@ struct MainView: View {
     @State private var showingAddTodo = false
     
     @State private var selectedDate = Date()
+    @State private var showingDatePicker = false // 캘린더 표시 여부
     
     private var dateTitle: String {
         var calendar = Calendar.current
@@ -18,6 +19,13 @@ struct MainView: View {
         let weekDay = dateFormatter.string(from: selectedDate)
         
         return "\(weekOfYear)주차 \(weekDay)"
+    }
+    
+    // 현재 선택된 날짜의 YYYY.MM.dd 표시용
+    private var subDateTitle: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy년 MM월 dd일"
+        return formatter.string(from: selectedDate)
     }
     
     private var filteredWorkTasks: [TaskItem] {
@@ -49,13 +57,54 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
+                // 상단 캘린더 드롭다운 영역
+                if showingDatePicker {
+                    VStack {
+                        DatePicker("", selection: $selectedDate, displayedComponents: [.date])
+                            .datePickerStyle(.graphical)
+                            .padding()
+                            .onChange(of: selectedDate) { _ in
+                                withAnimation {
+                                    showingDatePicker = false // 날짜 선택 시 자동으로 닫힘
+                                }
+                            }
+                        
+                        Button {
+                            withAnimation {
+                                selectedDate = Date() // 오늘로 이동
+                                showingDatePicker = false
+                            }
+                        } label: {
+                            Text("오늘로 이동")
+                                .font(.footnote.bold())
+                                .padding(.bottom, 10)
+                        }
+                    }
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 // 상단: 업무
                 VStack(alignment: .leading, spacing: 0) {
                     SectionHeader(title: "업무", action: { showingAddWork = true })
                     
                     List {
-                        ForEach(filteredWorkTasks) { task in
+                        ForEach(filteredWorkTasks, id: \.id) { task in
                             TaskRow(task: task)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        dataManager.deleteTask(task)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
+                                    Button {
+                                        // 수정 로직 (나중에 상세 구현)
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
                         }
                     }
                     .listStyle(PlainListStyle())
@@ -70,8 +119,22 @@ struct MainView: View {
                     SectionHeader(title: "할일", action: { showingAddTodo = true })
                     
                     List {
-                        ForEach(filteredTodoTasks) { task in
+                        ForEach(filteredTodoTasks, id: \.id) { task in
                             TaskRow(task: task)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        dataManager.deleteTask(task)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
+                                    Button {
+                                        // 수정 로직
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
                         }
                     }
                     .listStyle(PlainListStyle())
@@ -83,8 +146,10 @@ struct MainView: View {
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 16) {
                         Button(action: {
-                            if let newDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) {
-                                selectedDate = newDate
+                            withAnimation {
+                                if let newDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) {
+                                    selectedDate = newDate
+                                }
                             }
                         }) {
                             Image(systemName: "chevron.left")
@@ -92,12 +157,26 @@ struct MainView: View {
                                 .foregroundColor(.primary)
                         }
                         
-                        Text(dateTitle)
-                            .font(.headline)
+                        Button {
+                            withAnimation {
+                                showingDatePicker.toggle()
+                            }
+                        } label: {
+                            VStack(spacing: 2) {
+                                Text(dateTitle)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text(subDateTitle)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                         
                         Button(action: {
-                            if let newDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) {
-                                selectedDate = newDate
+                            withAnimation {
+                                if let newDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) {
+                                    selectedDate = newDate
+                                }
                             }
                         }) {
                             Image(systemName: "chevron.right")
@@ -106,6 +185,9 @@ struct MainView: View {
                         }
                     }
                 }
+            }
+            .onAppear {
+                dataManager.fetchTasks(ownerId: "temporary_user")
             }
             .sheet(isPresented: $showingAddWork) {
                 TaskEntryView(type: .work, initialDate: selectedDate)
@@ -137,26 +219,43 @@ struct SectionHeader: View {
 }
 
 struct TaskRow: View {
+    @EnvironmentObject var dataManager: DataManager
     @ObservedObject var task: TaskItem
+    
+    private var formattedStartTime: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: task.startDate)
+    }
     
     var body: some View {
         HStack {
             Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                 .foregroundColor(task.isCompleted ? .blue : .gray)
                 .onTapGesture {
-                    task.isCompleted.toggle()
+                    dataManager.toggleCompletion(for: task)
                 }
             
-            VStack(alignment: .leading) {
-                Text(task.title)
-                    .font(.body)
-                    .strikethrough(task.isDeleted)
-                    .foregroundColor(task.isDeleted ? .gray : .primary)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    if !task.isAllDay {
+                        Text(formattedStartTime)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.blue)
+                    }
+                    
+                    Text(task.title)
+                        .font(.body)
+                }
+                .strikethrough(task.isDeleted)
+                .foregroundColor(task.isDeleted ? .gray : .primary)
+                
                 if !task.notes.isEmpty {
                     Text(task.notes)
                         .font(.caption)
                         .strikethrough(task.isDeleted)
                         .foregroundColor(task.isDeleted ? .gray : .secondary)
+                        .padding(.leading, task.isAllDay ? 0 : 45) // 시간 표시 공간만큼 들여쓰기
                 }
             }
             Spacer()
@@ -164,7 +263,7 @@ struct TaskRow: View {
         .contentShape(Rectangle())
         .onTapGesture(count: 2) {
             withAnimation {
-                task.isDeleted.toggle()
+                dataManager.toggleDeletion(for: task)
             }
         }
     }

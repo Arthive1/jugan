@@ -13,6 +13,7 @@ struct TaskEntryView: View {
     @State private var startDate: Date
     @State private var endDate: Date
     @State private var notes: String = ""
+    @State private var showInCalendar: Bool = false // 캘린더 반영 여부 상태
     
     init(type: TaskType, initialDate: Date) {
         self.type = type
@@ -31,11 +32,6 @@ struct TaskEntryView: View {
                 
                 Section {
                     Toggle("하루 종일", isOn: $isAllDay)
-                        .onChange(of: isAllDay) { _, newValue in
-                            if newValue {
-                                // 하루종일일 경우 시작일(자정)과 종료일(자정) 맞추기 등 처리 가능
-                            }
-                        }
                     
                     if isAllDay {
                         DatePicker("시작", selection: $startDate, displayedComponents: .date)
@@ -44,6 +40,10 @@ struct TaskEntryView: View {
                         DatePicker("시작", selection: $startDate)
                         DatePicker("종료", selection: $endDate)
                     }
+                }
+                
+                Section {
+                    Toggle("캘린더에 반영", isOn: $showInCalendar)
                 }
                 
                 Section("메모") {
@@ -62,7 +62,7 @@ struct TaskEntryView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("추가") {
                         if !title.isEmpty {
-                            dataManager.addTask(title: title, isAllDay: isAllDay, startDate: startDate, endDate: endDate, location: location, notes: notes, type: type)
+                            dataManager.addTask(title: title, isAllDay: isAllDay, startDate: startDate, endDate: endDate, location: location, notes: notes, showInCalendar: showInCalendar, type: type, ownerId: "temporary_user")
                         }
                         dismiss()
                     }
