@@ -9,10 +9,11 @@ struct SettingsView: View {
             HStack {
                 Text("Settings")
                     .font(.system(size: 28, weight: .bold))
-                    .frame(maxWidth: .infinity) // 이 코드가 중요해요!
+                    .frame(maxWidth: .infinity)
             }
-
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .padding(.bottom, 10)
             
             // 메뉴 리스트
             List {

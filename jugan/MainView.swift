@@ -59,7 +59,7 @@ struct MainView: View {
             VStack(spacing: 0) {
                 // 상단: 업무
                 VStack(alignment: .leading, spacing: 0) {
-                    SectionHeader(title: "업무", action: { showingAddWork = true }, isTop: true)
+                    SectionHeader(title: "Todos", action: { showingAddWork = true }, isTop: true)
                     
                     List {
                         ForEach(filteredWorkTasks, id: \.id) { task in
@@ -89,7 +89,7 @@ struct MainView: View {
                 
                 // 하단: 할일
                 VStack(alignment: .leading, spacing: 0) {
-                    SectionHeader(title: "할일", action: { showingAddTodo = true })
+                    SectionHeader(title: "Works", action: { showingAddTodo = true })
                     
                     List {
                         ForEach(filteredTodoTasks, id: \.id) { task in
